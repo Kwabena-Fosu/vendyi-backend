@@ -27,6 +27,21 @@ class MyAccountManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
+    
+    def create_superuser(self, first_name, last_name, email, username, password):
+        user = self.create_user(
+            email = self.normalize_email(email),
+            username = username,
+            password = password,
+            first_name = first_name,
+            last_name = last_name,
+        )
+        user.is_admin = True
+        user.is_active = True
+        user.is_staff = True
+        user.is_superadmin = True
+        user.save(using=self._db)
+        return user
 
 
 class User(AbstractBaseUser):
@@ -70,6 +85,9 @@ class User(AbstractBaseUser):
         """
         full_name = "%s %s" % (self.first_name, self.last_name)
         return full_name.strip()
+    
+    def is_vendor(self):
+        return self.vendor.exists()
     
     def get_purchase_history(self):
         '''Return a queryset of all purchases made by the user.'''

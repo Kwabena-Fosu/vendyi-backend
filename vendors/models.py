@@ -6,11 +6,11 @@ from django.dispatch import receiver
 
 class ActiveVendorManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(is_active=True)
+        return super().get_queryset().filter(is_active=False)
 
 class Vendor(models.Model):
     '''Model definition for Vendor.'''
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='vendor')
     shop_name = models.CharField(max_length=255)
     description = models.TextField(max_length=500)
     location = models.CharField(max_length=255)
@@ -20,7 +20,7 @@ class Vendor(models.Model):
     is_active = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add= True)
 
-    active_vendors = ActiveVendorManager()  # custom manager
+    objects = ActiveVendorManager()  # custom manager
 
     class Meta:
         '''Meta definition for Vendor.'''
@@ -34,7 +34,7 @@ class VendorProfile(models.Model):
     vendor = models.OneToOneField(Vendor, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='media/vendors/profiles', default='media/profile.jpeg', validators=[validate_image_file_extension])
     header_image = models.ImageField(upload_to='media/vendors/headers', validators=[validate_image_file_extension])
-    followers = models.ManyToManyField(User, related_name='following', default='media/profile.jpeg',)
+    followers = models.ManyToManyField(User, related_name='following', blank=True)
 
     def __str__(self):
         return self.vendor.shop_name
